@@ -41,10 +41,10 @@ h2 {
 
 h3 {
     font-family: 'Poppins', sans-serif;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     font-weight: 700;
     /* background: linear-gradient(90deg, #16a085, #2ecc71); */
-    color: black;
+    color: #333;
     /* -webkit-background-clip: text;
     -webkit-text-fill-color: transparent; */
     margin-bottom: 1rem;
