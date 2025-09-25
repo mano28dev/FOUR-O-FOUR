@@ -1,7 +1,7 @@
 # app.py
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, request, jsonify, redirect, url_for, Response
 import os
-import cv2
+import cv2 as cv
 import numpy as np
 from werkzeug.utils import secure_filename
 
@@ -75,7 +75,7 @@ def analyze_plant_health_opencv(img_path):
       - compute proportion of yellow/brown pixels (stress)
     Returns a dict with 'health' summary and numeric details.
     """
-    img = cv2.imread(img_path)
+    img = cv.imread(img_path)
     if img is None:
         return {'health': 'error', 'details': 'could not read image'}
 
@@ -84,21 +84,21 @@ def analyze_plant_health_opencv(img_path):
     max_dim = 800
     if max(H, W) > max_dim:
         scale = max_dim / float(max(H, W))
-        img = cv2.resize(img, (int(W*scale), int(H*scale)))
+        img = cv.resize(img, (int(W*scale), int(H*scale)))
 
-    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
 
     # green mask (broad)
     lower_green = np.array([25, 40, 40])
     upper_green = np.array([85, 255, 255])
-    mask_green = cv2.inRange(hsv, lower_green, upper_green)
-    green_count = int(cv2.countNonZero(mask_green))
+    mask_green = cv.inRange(hsv, lower_green, upper_green)
+    green_count = int(cv.countNonZero(mask_green))
 
     # yellow/brown mask (broad)
     lower_yellow = np.array([5, 40, 40])
     upper_yellow = np.array([35, 255, 255])
-    mask_yellow = cv2.inRange(hsv, lower_yellow, upper_yellow)
-    yellow_count = int(cv2.countNonZero(mask_yellow))
+    mask_yellow = cv.inRange(hsv, lower_yellow, upper_yellow)
+    yellow_count = int(cv.countNonZero(mask_yellow))
 
     total = img.shape[0] * img.shape[1]
     green_ratio = green_count / total
@@ -122,12 +122,6 @@ def analyze_plant_health_opencv(img_path):
             # 'image_pixels': int(total)
         }
     }
-
-
-@app.route('/')
-def home():
-    return render_template('home.html')
-
 
 @app.route('/about')
 def about():
@@ -172,7 +166,46 @@ def upload():
                            analysis=analysis,
                            message=None)
 
+# Use the camera index you already have (2)
+capture = cv.VideoCapture(0)
+if not capture.isOpened():
+    raise RuntimeError("Could not open video device")
+
+# Generator to yield frames for streaming
+def gen_frames():
+    while True:
+        ret, frame = capture.read()
+        if not ret:
+            print("test")
+            break
+
+        # Optional: resize frame for faster streaming
+        frame = cv.resize(frame, (640, 480))
+
+        # Encode frame as JPEG
+        ret, buffer = cv.imencode('.jpg', frame)
+        frame_bytes = buffer.tobytes()
+
+        # Yield in byte format for multipart streaming
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+
+@app.route('/live')
+def live():
+    return render_template('live.html')  # your live.html page
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(gen_frames(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/')
+def home():
+    capture.release()
+    return render_template('home.html')
 
 if __name__ == '__main__':
-    # debug True for development; in production use gunicorn / waitress
-    app.run(host='0.0.0.0', port=5000, debug=0)
+    try:
+        app.run(host='0.0.0.0', port=5000, debug=False)
+    finally:
+        capture.release()

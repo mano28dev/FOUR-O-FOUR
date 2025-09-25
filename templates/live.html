@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>A² - Live Feed</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Live Drone Feed</h1>
+    <div class="live-card">
+        <img src="{{ url_for('video_feed') }}" alt="Live Feed" style="max-width:100%; border-radius:10px;">
+    </div>
+    <footer>
+        <a href="{{ url_for('home') }}"><button class="secondary-button">Back to Home</button></a>
+    </footer>
+</body>
+</html>

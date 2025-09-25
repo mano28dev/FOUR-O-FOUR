@@ -227,3 +227,15 @@ button:hover {
     margin-bottom: 0.5rem;
     font-size: 1rem;
 }
+
+.live-card {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+    max-width: 900px;
+    width: 90%;
+    padding: 1rem;
+    background-color: #ffffffcc;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
