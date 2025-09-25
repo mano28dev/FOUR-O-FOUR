@@ -38,3 +38,82 @@ h2 {
     margin-bottom: 2rem;
     text-align: center;
 }
+
+h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    /* background: linear-gradient(90deg, #16a085, #2ecc71); */
+    color: black;
+    /* -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent; */
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+/* Buttons */
+button {
+    padding: 0.8rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(90deg, #16a085, #2ecc71);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+}
+
+/* Cards */
+.card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 3rem 2rem; /* more vertical padding for spacing */
+    margin: 2rem 0;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    max-width: 600px;
+    display: flex;
+    flex-direction: column; /* vertical layout */
+    align-items: center;    /* center horizontally */
+    justify-content: space-around; /* equal spacing vertically */
+    text-align: center;
+    gap: 1.5rem; /* spacing between child elements */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
+/* Secondary button for footer / About A² */
+.secondary-button {
+    padding: 0.6rem 1.8rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #16a085;
+    background: none;
+    border: 2px solid #16a085;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 1rem;
+
+    display: block;         /* makes it take full line for centering */
+    margin-left: auto;
+    margin-right: auto;
+
+    transition: background-color 0.3s ease, color 0.3s ease; /* only color change */
+}
+
+/* Hover: only color change */
+.secondary-button:hover {
+    background: #16a085;
+    color: #fff;
+}
+

@@ -3,12 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A²</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>A² - Home</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <h1>Welcome to A²</h1>
     <h2>A futuristic Agri Assistant</h2>
+
+    <div class="card">
+        <p>Upload your drone image and let A² analyze crop health instantly!</p>
+        <button onclick=location.href="/upload">Upload Image</button>
+    </div>
+    <footer>
+        <button class="secondary-button" onclick=location.href="/about">About A²</button>
+        <p>© 2025 A² Hackathon Prototype</p>
+    </footer>
 </body>
 </html>
