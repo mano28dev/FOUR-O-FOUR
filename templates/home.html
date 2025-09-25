@@ -12,9 +12,22 @@
     <h2>A futuristic Agri Assistant</h2>
 
     <div class="card">
-        <p>Upload your drone image and let A² analyze crop health instantly!</p>
-        <button onclick=location.href="/upload">Upload Image</button>
-    </div>
+    <p>Upload your drone image and let A² analyze crop health instantly!</p>
+    
+    <form action="/upload" method="POST" enctype="multipart/form-data" class="upload-form">
+        <!-- Hidden real file input -->
+        <input type="file" name="image" id="fileInput" accept="image/*">
+        
+        <!-- Custom visible button -->
+        <!-- <label for="fileInput" class="file-button">Choose Image</label> -->
+
+        <!-- Submit button -->
+        <button type="submit">Upload Image</button>
+    </form>
+</div>
+
+
+
     <footer>
         <button class="secondary-button" onclick=location.href="/about">About A²</button>
         <p>© 2025 A² Hackathon Prototype</p>

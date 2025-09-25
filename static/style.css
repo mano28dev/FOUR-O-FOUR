@@ -117,3 +117,49 @@ button:hover {
     color: #fff;
 }
 
+/* Upload Form Styling */
+.upload-form {
+    display: flex;
+    flex-direction: column; /* stack vertically */
+    align-items: center;
+    gap: 1.2rem; /* space between input and button */
+    width: 100%;
+}
+
+/* File Input Styling */
+.file-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 0.8rem 1rem;
+    border: 2px solid #16a085;
+    border-radius: 12px;
+    font-size: 1rem;
+    cursor: pointer;
+    background: #f0f8f8;
+    color: #1b2a49;
+    transition: border-color 0.3s ease, background 0.3s ease;
+}
+
+.file-input:hover {
+    border-color: #2ecc71;
+    background: #e0f7f4;
+}
+
+/* Upload Button Styling */
+.upload-form button {
+    padding: 0.8rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(90deg, #16a085, #2ecc71);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.upload-form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+}
