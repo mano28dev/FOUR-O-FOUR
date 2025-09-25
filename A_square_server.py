@@ -201,7 +201,6 @@ def video_feed():
 
 @app.route('/')
 def home():
-    capture.release()
     return render_template('home.html')
 
 if __name__ == '__main__':
