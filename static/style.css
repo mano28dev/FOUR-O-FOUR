@@ -92,8 +92,9 @@ button:hover {
     box-shadow: 0 12px 30px rgba(0,0,0,0.15);
 }
 
-/* Secondary button for footer / About A² */
 .secondary-button {
+    display: block;                 /* takes full line */
+    margin: 1rem auto 0 auto;       /* centers horizontally */
     padding: 0.6rem 1.8rem;
     font-size: 1rem;
     font-weight: 500;
@@ -102,20 +103,15 @@ button:hover {
     border: 2px solid #16a085;
     border-radius: 10px;
     cursor: pointer;
-    margin-top: 1rem;
-
-    display: block;         /* makes it take full line for centering */
-    margin-left: auto;
-    margin-right: auto;
-
-    transition: background-color 0.3s ease, color 0.3s ease; /* only color change */
+    text-align: center;
+    transition: transform 0.3s ease, color 0.3s ease;
 }
 
-/* Hover: only color change */
 .secondary-button:hover {
-    background: #16a085;
-    color: #fff;
+    transform: translateY(-2px);
 }
+
+
 
 /* Upload Form Styling */
 .upload-form {
@@ -162,4 +158,26 @@ button:hover {
 .upload-form button:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+}
+
+/* Custom File Label (simpler than Upload button) */
+.custom-file-label {
+    display: inline-block;
+    padding: 0.6rem 1.8rem;        /* smaller than Upload button */
+    font-size: 1rem;
+    font-weight: 500;
+    color: #16a085;
+    background: none;              /* no gradient */
+    border: 2px solid #16a085;     /* outlined style */
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+/* Hover: simple color swap */
+.custom-file-label:hover {
+    /* background: #16a085; */
+    transform: translateY(-2px);
+    /* color: #fff; */
 }
