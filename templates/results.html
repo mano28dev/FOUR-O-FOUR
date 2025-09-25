@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A² - Analysis Results</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Plant Analysis Results</h1>
+
+    <div class="results-card">
+        <div class="results-image">
+            <img src="{{ url_for('static', filename='uploads/' + filename) }}" alt="Uploaded Plant Image">
+        </div>
+
+        <div class="results-details">
+            {% if message %}
+                <h3>Not a Plant</h3>
+                <p>{{ message }}</p>
+            {% else %}
+                <h3>Plant Detected</h3>
+
+                <!-- <h4>Top Predictions:</h4>
+                <ul>
+                    {% for pred in predictions %}
+                        <li>{{ pred.label }} — {{ (pred.prob*100)|round(1) }}%</li>
+                    {% endfor %}
+                </ul>
+
+                <h4>Health Analysis:</h4> -->
+                <ul>
+                    <li>Overall Health: {{ analysis.health }}</li>
+                    {% for key, value in analysis.details.items() %}
+                        <li>{{ key }}: {{ value }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+
+    <footer>
+        <a href="{{ url_for('home') }}"><button class="secondary-button">Back to Home</button></a>
+        <p>© 2025 A² Hackathon Prototype</p>
+    </footer>
+</body>
+</html>

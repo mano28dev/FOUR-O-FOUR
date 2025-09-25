@@ -1,5 +1,5 @@
 # app.py
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 import os
 import cv2
 import numpy as np
@@ -119,7 +119,7 @@ def analyze_plant_health_opencv(img_path):
         'details': {
             'green_ratio': round(green_ratio, 3),
             'yellow_ratio': round(yellow_ratio, 3),
-            'image_pixels': int(total)
+            # 'image_pixels': int(total)
         }
     }
 
@@ -136,7 +136,6 @@ def about():
 
 @app.route('/upload', methods=['POST'])
 def upload():
-    # the form should post 'image' (name attribute)
     if 'image' not in request.files:
         return jsonify({'error': 'No file part (image)'}), 400
 
@@ -148,31 +147,32 @@ def upload():
     save_path = os.path.join(UPLOAD_FOLDER, filename)
     file.save(save_path)
 
-    # 1) run classifier to check plant vs not-plant
+    # Plant detection
     try:
         is_plant, preds = is_plant_with_mobilenet(save_path, top=5, prob_thresh=0.02)
     except Exception as e:
         return jsonify({'error': 'Model inference failed', 'details': str(e)}), 500
 
     if not is_plant:
-        return jsonify({
-            'filename': filename,
-            'is_plant': False,
-            'predictions': preds,
-            'message': 'Image does not appear to be a plant (ImageNet classifier).'
-        })
+        # If not a plant, redirect to a results page showing the message
+        return render_template('results.html',
+                               filename=filename,
+                               is_plant=False,
+                               predictions=preds,
+                               analysis=None,
+                               message="Image does not appear to be a plant (ImageNet classifier).")
 
-    # 2) analyze plant health using OpenCV heuristics
+    # Plant health analysis
     analysis = analyze_plant_health_opencv(save_path)
 
-    return jsonify({
-        'filename': filename,
-        'is_plant': True,
-        'predictions': preds,
-        'analysis': analysis
-    })
+    return render_template('results.html',
+                           filename=filename,
+                           is_plant=True,
+                           predictions=preds,
+                           analysis=analysis,
+                           message=None)
 
 
 if __name__ == '__main__':
     # debug True for development; in production use gunicorn / waitress
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=0)
