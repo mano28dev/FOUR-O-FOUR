@@ -112,14 +112,19 @@ def analyze_plant_health_opencv(img_path):
     yellow_ratio = yellow_count / total
 
     # simple rule-based health label (tweak thresholds to your dataset)
-    if green_ratio > 0.5:
-        health = "Healthy 🌿"
-    elif green_ratio > 0.25 and yellow_ratio < 0.15:
-        health = "Moderate — mixed vegetation"
-    elif yellow_ratio > 0.15:
+    # if green_ratio > 0.5:
+    #     health = "Healthy 🌿"
+    # elif green_ratio > 0.25 and yellow_ratio < 0.15:
+    #     health = "Moderate — mixed vegetation"
+    if yellow_ratio > 0.15:
         health = "Stressed / unhealthy (yellow/brown detected)"
     else:
-        health = "Low vegetation / uncertain"
+        if green_ratio > 0.5:
+            health = "Healthy 🌿"
+        elif green_ratio > 0.25:
+            health = "Moderate — mixed vegetation"
+        else:
+            health = "Low vegetation / uncertain"
 
     return {
         'health': health,
@@ -184,7 +189,7 @@ def upload():
         return render_template(
             'results.html',
             filename=filename,
-            message="Image does not appear to be a plant (ImageNet classifier).",
+            message="Image does not appear to be a plant.",
             analysis=None,
             disease=None
         )
@@ -207,7 +212,7 @@ def upload():
     )
 
 # Use the camera index you already have (2)
-capture = cv.VideoCapture(0)
+capture = cv.VideoCapture("http://10.250.161.178:4747/video", cv.CAP_FFMPEG)
 if not capture.isOpened():
     raise RuntimeError("Could not open video device")
 
@@ -216,19 +221,63 @@ def gen_frames():
     while True:
         ret, frame = capture.read()
         if not ret:
-            print("test")
             break
 
-        # Optional: resize frame for faster streaming
+        # resize for speed
         frame = cv.resize(frame, (640, 480))
 
-        # Encode frame as JPEG
+        # --- Simple plant detection: green areas ---
+        hsv = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
+        lower_green = np.array([25, 40, 40])
+        upper_green = np.array([85, 255, 255])
+        mask = cv.inRange(hsv, lower_green, upper_green)
+
+        # find contours of green blobs
+        contours, _ = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+
+        for cnt in contours:
+            if cv.contourArea(cnt) < 500:  # ignore small noise
+                continue
+
+            x, y, w, h = cv.boundingRect(cnt)
+            roi = frame[y:y+h, x:x+w]
+
+            # get health status for this region
+            health_info = analyze_plant_health_opencv_roi(roi)  # small helper
+
+            # draw box
+            cv.rectangle(frame, (x,y), (x+w, y+h), (0,255,0), 2)
+            cv.putText(frame, health_info, (x, y-5),
+                       cv.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
+
+        # encode frame
         ret, buffer = cv.imencode('.jpg', frame)
         frame_bytes = buffer.tobytes()
-
-        # Yield in byte format for multipart streaming
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+        
+def analyze_plant_health_opencv_roi(roi):
+    hsv = cv.cvtColor(roi, cv.COLOR_BGR2HSV)
+    lower_green = np.array([25, 40, 40])
+    upper_green = np.array([85, 255, 255])
+    mask_green = cv.inRange(hsv, lower_green, upper_green)
+    green_ratio = cv.countNonZero(mask_green) / (roi.shape[0]*roi.shape[1])
+
+    lower_yellow = np.array([5, 40, 40])
+    upper_yellow = np.array([35, 255, 255])
+    mask_yellow = cv.inRange(hsv, lower_yellow, upper_yellow)
+    yellow_ratio = cv.countNonZero(mask_yellow) / (roi.shape[0]*roi.shape[1])
+
+    if green_ratio > 0.5:
+        return "Healthy 🌿"
+    elif green_ratio > 0.25 and yellow_ratio < 0.15:
+        return "Moderate"
+    elif yellow_ratio > 0.15:
+        return "Stressed ⚠️"
+    else:
+        return "Low veg"
+
+
 
 @app.route('/live')
 def live():
