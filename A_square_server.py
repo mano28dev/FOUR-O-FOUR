@@ -4,6 +4,12 @@ import os
 import cv2 as cv
 import numpy as np
 from werkzeug.utils import secure_filename
+import google.generativeai as genai
+import re
+import json
+
+genai.configure(api_key='AIzaSyCPSAzuan8sQYZG3PPbNjODky1YMLqsDT8')
+gemini_model = genai.GenerativeModel("gemini-2.0-flash")
 
 # TensorFlow (cpu build)
 import tensorflow as tf
@@ -76,6 +82,7 @@ def analyze_plant_health_opencv(img_path):
     Returns a dict with 'health' summary and numeric details.
     """
     img = cv.imread(img_path)
+    print(get_disease_and_remedy(img_path=img_path))
     if img is None:
         return {'health': 'error', 'details': 'could not read image'}
 
@@ -123,10 +130,37 @@ def analyze_plant_health_opencv(img_path):
         }
     }
 
+def get_disease_and_remedy(img_path):
+    prompt = """
+    You are an agricultural expert. 
+    Look at this plant leaf image and tell me:
+    Reply with only a Json,
+    it should contain 3 fields:
+    1.prescence: whether there is a disease or not(Boolean)
+    2.disease_name: if disease present, then return disease present or return null
+    3.remedy: if disease present, then return remedy if available or return null.
+    """
+    response = gemini_model.generate_content([prompt, genai.upload_file(img_path)])
+    text = response.text
+
+    # Extract first JSON object {...}
+    match = re.search(r"\{.*\}", text, re.DOTALL)
+    if not match:
+        raise ValueError("No JSON object found in response")
+
+    json_str = match.group(0)
+
+    # Parse JSON safely
+    try:
+        data = json.loads(json_str)
+    except json.JSONDecodeError:
+        raise ValueError(f"Invalid JSON: {json_str}")
+
+    return data
+
 @app.route('/about')
 def about():
     return render_template('about.html')
-
 
 @app.route('/upload', methods=['POST'])
 def upload():
@@ -141,30 +175,36 @@ def upload():
     save_path = os.path.join(UPLOAD_FOLDER, filename)
     file.save(save_path)
 
-    # Plant detection
     try:
         is_plant, preds = is_plant_with_mobilenet(save_path, top=5, prob_thresh=0.02)
     except Exception as e:
         return jsonify({'error': 'Model inference failed', 'details': str(e)}), 500
 
     if not is_plant:
-        # If not a plant, redirect to a results page showing the message
-        return render_template('results.html',
-                               filename=filename,
-                               is_plant=False,
-                               predictions=preds,
-                               analysis=None,
-                               message="Image does not appear to be a plant (ImageNet classifier).")
+        return render_template(
+            'results.html',
+            filename=filename,
+            message="Image does not appear to be a plant (ImageNet classifier).",
+            analysis=None,
+            disease=None
+        )
 
     # Plant health analysis
     analysis = analyze_plant_health_opencv(save_path)
 
-    return render_template('results.html',
-                           filename=filename,
-                           is_plant=True,
-                           predictions=preds,
-                           analysis=analysis,
-                           message=None)
+    # Gemini disease + remedy detection
+    try:
+        disease_info = get_disease_and_remedy(save_path)
+    except Exception as e:
+        disease_info = {"prescence": False, "disease_name": None, "remedy": None}
+
+    return render_template(
+        'results.html',
+        filename=filename,
+        analysis=analysis,
+        disease=disease_info,
+        message=None
+    )
 
 # Use the camera index you already have (2)
 capture = cv.VideoCapture(0)

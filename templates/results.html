@@ -11,10 +11,12 @@
     <h1>Plant Analysis Results</h1>
 
     <div class="results-card">
+    <!-- Left side: Image -->
         <div class="results-image">
             <img src="{{ url_for('static', filename='uploads/' + filename) }}" alt="Uploaded Plant Image">
         </div>
 
+        <!-- Right side: Details -->
         <div class="results-details">
             {% if message %}
                 <h3>Not a Plant</h3>
@@ -22,26 +24,28 @@
             {% else %}
                 <h3>Plant Detected</h3>
 
-                <!-- <h4>Top Predictions:</h4>
                 <ul>
-                    {% for pred in predictions %}
-                        <li>{{ pred.label }} — {{ (pred.prob*100)|round(1) }}%</li>
-                    {% endfor %}
-                </ul>
-
-                <h4>Health Analysis:</h4> -->
-                <ul>
-                    <li>Overall Health: {{ analysis.health }}</li>
+                    <li><strong>Overall Health:</strong> {{ analysis.health }}</li>
                     {% for key, value in analysis.details.items() %}
                         <li>{{ key }}: {{ value }}</li>
                     {% endfor %}
+
+                    <hr>
+                    <li><strong>Disease Present:</strong> {{ disease.prescence }}</li>
+                    <li><strong>Disease Name:</strong> {{ disease.disease_name if disease.disease_name else "None" }}</li>
+                    <li><strong>Remedy:</strong> {{ disease.remedy if disease.remedy else "None" }}</li>
                 </ul>
             {% endif %}
         </div>
     </div>
 
+
+
     <footer>
-        <a href="{{ url_for('home') }}"><button class="secondary-button">Back to Home</button></a>
+        <div style="text-align: center;">
+            <button onclick=location.href="/">Back to Home</button>
+        </div>
+        <!-- <a href="{{ url_for('home') }}"><button class="secondary-button">Back to Home</button></a> -->
         <p>© 2025 A² Hackathon Prototype</p>
     </footer>
 </body>

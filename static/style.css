@@ -239,3 +239,27 @@ button:hover {
     border-radius: 15px;
     box-shadow: 0 8px 20px rgba(0,0,0,0.15);
 }
+.underline-link {
+  position: relative;
+  color: #000;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.underline-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px; /* little gap below text */
+  width: 100%;
+  height: 2px;
+  background-color: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.underline-link:hover::after {
+  transform: scaleX(1);
+}
+
