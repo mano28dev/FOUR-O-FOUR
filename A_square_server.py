@@ -211,10 +211,14 @@ def upload():
         message=None
     )
 
-# Use the camera index you already have (2)
-capture = cv.VideoCapture("http://10.250.161.178:4747/video", cv.CAP_FFMPEG)
-if not capture.isOpened():
-    raise RuntimeError("Could not open video device")
+try:
+    capture = cv.VideoCapture("http://10.250.161.178:4747/video", cv.CAP_FFMPEG)
+    if not capture.isOpened():
+        raise RuntimeError("Could not open video device")
+except RuntimeError:
+    capture = cv.VideoCapture(0)
+    if not capture.isOpened():
+        raise RuntimeError("Could not open video device")
 
 # Generator to yield frames for streaming
 def gen_frames():
